@@ -33,15 +33,15 @@ export class TelegramBot {
 
     try {
       // init serial printer
-      this.printerCtrl = new PrinterController({ path: '/dev/ttyS1' });
-      await this.printerCtrl.init();
+      // this.printerCtrl = new PrinterController({ path: '/dev/ttyS1' });
+      // await this.printerCtrl.init();
     } catch (error) {
       console.log(error);
     }
 
     // print init message
 
-    await this.prinInitMessage();
+    // await this.prinInitMessage();
 
     // register handlers
 
@@ -58,7 +58,7 @@ export class TelegramBot {
   private static async onStart(ctx: TelegrafContext) {
     try {
       await this.updateChatUserVisit(ctx);
-      ctx.reply( MessageBuilder.welcomeMessage(ctx) );
+      ctx.reply( MessageBuilder.welcomeMessage(this.channelUrl, ctx) );
     } catch (error) {
       console.log(error);
     }
@@ -123,7 +123,7 @@ export class TelegramBot {
       let responseMessage: string;
 
       // check print queue size
-      const queueSize = await PrintQueue.count();
+      const queueSize = await PrintQueue.count({where:{processed: false }});
 
       if (queueSize === 0) {
         responseMessage = MessageBuilder.printASAPMessage(ctx)
@@ -159,7 +159,7 @@ export class TelegramBot {
     return true;
   }
 
-  private static async userIsSpamming(ctx: TelegrafContext) {
+  private static userIsSpamming(ctx: TelegrafContext) {
     if (ctx.from) {
       return this.lastMessageDateById[ctx.from.id] && this.lastMessageDateById[ctx.from.id].getTime() + (1000*60) >= new Date().getTime();
     } else {
