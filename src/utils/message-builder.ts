@@ -2,20 +2,32 @@ import { TelegrafContext } from "telegraf/typings/context";
 
 export class MessageBuilder {
 
-  public static welcomeMessage(ctx: TelegrafContext) {
+  public static welcomeMessage(channelUrl: string, ctx: TelegrafContext) {
     try {
       if (ctx.from) {
         switch (ctx.from.language_code) {
           case 'it':
-            return `Ciao ${ctx.from.first_name ? ctx.from.first_name : ''}${ctx.from.last_name ? ` ${ctx.from.last_name}` : ''}, mandami un messaggio (o foto) e io lo stamperò!`;
+            let it = `Ciao ${ctx.from.first_name ? ctx.from.first_name : ''}${ctx.from.last_name ? ` ${ctx.from.last_name}` : ''}, mandami un messaggio (o foto) e io lo stamperò!`;
+            if (channelUrl) {
+              it += `\n\nPer vedere i risultati: ${channelUrl}`;
+            }
+            return it;
           default:
-            return `Hello ${ctx.from.first_name ? ctx.from.first_name : ''}${ctx.from.last_name ? ` ${ctx.from.last_name}` : ''}, send me a message (or photo) and i'll print it!`;
+            let en = `Hello ${ctx.from.first_name ? ctx.from.first_name : ''}${ctx.from.last_name ? ` ${ctx.from.last_name}` : ''}, send me a message (or photo) and i'll print it!`;
+            if (channelUrl) {
+              en += `\n\nSee printed results here: ${channelUrl}`;
+            }
+            return en;
         }
       } else {
         throw new Error();
       }
     } catch (err) {
-      return `Hello visitor, send me a message (or photo) and i'll print it!`
+      let en = `Hello visitor, send me a message (or photo) and i'll print it!`;
+      if (channelUrl) {
+        en += `\n\n See printed results here ${channelUrl}`;
+      }
+      return en;
     }
   }
 

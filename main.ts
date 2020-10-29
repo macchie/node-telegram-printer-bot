@@ -32,7 +32,7 @@ const main = async () => {
 
   console.log(`starting telegram bot...`);
 
-  await TelegramBot.init(TelegramBotConfig.telegram.token);
+  await TelegramBot.init(TelegramBotConfig.telegram);
 
   console.log(`telegram bot started!`);
 }

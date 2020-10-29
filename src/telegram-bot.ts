@@ -19,13 +19,15 @@ export class TelegramBot {
   private static lastMessageDateById: { [key: string]: Date } = {};
 
   private static token: string;
+  private static channelUrl: string;
   private static me: User;
   
-  public static async init(token: string) {
+  public static async init(config: any) {
 
     // init telegram bot
 
-    this.token = token;
+    this.token = config.token;
+    this.channelUrl = config.channelUrl || null;
     this.bot = new Telegraf(this.token);
     this.me = await this.bot.telegram.getMe();
 
