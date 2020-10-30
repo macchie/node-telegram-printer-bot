@@ -106,7 +106,6 @@ export class TelegramBot {
       // photo line
 
       if (ctx.update.message && ctx.update.message.photo) {
-        console.log(ctx.update.message)
         try {
           const fileId = ctx.update.message.photo[ctx.update.message.photo.length - 1].file_id;
           const fileUniqueId = (ctx.update.message.photo[ctx.update.message.photo.length - 1] as any).file_unique_id;
