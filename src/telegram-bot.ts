@@ -1,5 +1,7 @@
 
 import jimp from 'jimp';
+import path from 'path';
+
 import Telegraf from 'telegraf';
 import { TelegrafContext } from 'telegraf/typings/context';
 import { User } from 'telegraf/typings/telegram-types';
@@ -8,7 +10,7 @@ import { PrintQueue } from './models/print-queue.entity';
 
 import { TelegramChat } from './models/telegram-chat.entity';
 import { TelegramUser } from './models/telegram-user.entity';
-import { PrinterController, PrinterLine } from './printer-controller';
+import { PrinterController } from './printer-controller';
 import { MessageBuilder } from './utils/message-builder';
 
 
@@ -33,15 +35,15 @@ export class TelegramBot {
 
     try {
       // init serial printer
-      // this.printerCtrl = new PrinterController({ path: '/dev/ttyS1' });
-      // await this.printerCtrl.init();
+      this.printerCtrl = new PrinterController({ path: '/dev/ttyS1' });
+      await this.printerCtrl.init();
     } catch (error) {
       console.log(error);
     }
 
     // print init message
 
-    // await this.prinInitMessage();
+    await this.prinInitMessage();
 
     // register handlers
 
@@ -91,7 +93,7 @@ export class TelegramBot {
         type: 'text',
         bold: true,
         align: 'center',
-        value: `[${formattedDate}] ${firstName || ''} ${lastName || ''}`
+        value: `${formattedDate} - ${firstName || ''} ${lastName || ''}\n`
       })
       
       // message line
@@ -103,17 +105,24 @@ export class TelegramBot {
 
       // photo line
 
-      if (ctx.message && ctx.message.photo) {
+      if (ctx.update.message && ctx.update.message.photo) {
+        console.log(ctx.update.message)
         try {
-          const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
-          const imagePath = `/tmp/${fileId}.jpg`;
+          const fileId = ctx.update.message.photo[ctx.update.message.photo.length - 1].file_id;
+          const fileUniqueId = (ctx.update.message.photo[ctx.update.message.photo.length - 1] as any).file_unique_id;
+
+          const imagePath = path.join(__dirname, `../../images/${fileUniqueId}.jpg`);
           const fileURL: any = await this.bot.telegram.getFileLink(fileId);
+
           const image = await jimp.read(fileURL)
           await image.resize(384, jimp.AUTO);
-          image.write(imagePath);
+
+          await image.writeAsync(imagePath);
+          
           newQueueItem.imagePath = imagePath;
           newQueueItem.addLine({ type: 'image', value: imagePath });
         } catch (error) {
+          console.log(error);
           newQueueItem.addLine({ type: 'text', value: `error proccessing image :(` })
         }
       }
@@ -154,7 +163,9 @@ export class TelegramBot {
     welcomeMessage.addLine({ type: 'text', value: `@${this.me.username}\n`})
     welcomeMessage.addLine({ type: 'text', value: `https://t.me/${this.me.username}\n\n`})
 
-    await welcomeMessage.addToQueue();
+    if (this.printerCtrl) {
+      this.printerCtrl.printLines(welcomeMessage.lines);
+    }
 
     return true;
   }

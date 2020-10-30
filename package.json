@@ -2,12 +2,12 @@
   "name": "node-telegram-printer-bot",
   "version": "1.0.0",
   "description": "NodeJS Telegram Printer BOT",
-  "main": "build/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "prebuild": "cp config.json build/config.json",
     "build": "npx tsc",
+    "postbuild": "cp config.json dist/config.json",
     "prestart": "npm run build",
-    "start": "node build/main.js"
+    "start": "node dist/main.js"
   },
   "author": "Andrea Macchieraldo",
   "license": "ISC",

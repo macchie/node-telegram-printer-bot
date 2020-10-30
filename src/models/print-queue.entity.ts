@@ -13,7 +13,7 @@ export class PrintQueue extends BaseEntity {
   @Column({ name: 'image_path', type: 'varchar', nullable: true })
   imagePath!: string;
 
-  @Column({ name: 'image', type: 'boolean', nullable: true, default: 'false' })
+  @Column({ name: 'processed', type: 'boolean', nullable: true, default: 'false' })
   processed: boolean = false;
 
   @Column({ name: 'last_update', type: 'timestamp without time zone', nullable: true, default: 'now()' })
@@ -26,7 +26,6 @@ export class PrintQueue extends BaseEntity {
 
   async addLine(line: PrinterLine) {
     this.lines.push(line);
-    return this.save();
   }
 
   async addToQueue() {
