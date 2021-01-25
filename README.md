@@ -2,7 +2,6 @@
 
 telegram printer bot written in nodejs
 
-
 ### features
 
 - multi db support thanks to TypeORM
